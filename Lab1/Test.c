@@ -2,6 +2,6 @@
 #include <stdio.h>
 
 int main() {
-    printf("Hello World/Ubuntu\n");
+    printf("Hello/n");
     return 0;
 }
