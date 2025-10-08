@@ -1,0 +1,9 @@
+exec_top
+*.out
+*.o
+*.exe
+
+# Ignore temporary or log files
+*.log
+*.tmp
+

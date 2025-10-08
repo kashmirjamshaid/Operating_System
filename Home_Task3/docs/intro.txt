@@ -1,0 +1,2 @@
+This is the introduction file.
+It describes the purpose of Home Task 3.
