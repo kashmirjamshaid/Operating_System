@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Book</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    .messages {
+      margin-top: 30px;
+    }
+
+    .message {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .message-name {
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .message-time {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="container">
+    <h1>Guest Book</h1>
+    <p class="subtitle">Powered by Docker Compose</p>
+
+    <div class="form-group">
+      <input type="text" id="nameInput" placeholder="Your name">
+    </div>
+
+    <div class="form-group">
+      <textarea id="messageInput" placeholder="Leave a message..." rows="3"></textarea>
+    </div>
+
+    <button onclick="addMessage()">Sign Guest Book</button>
+
+    <div class="messages" id="messagesList">
+      <p style="text-align: center; color: #999;">Loading messages...</p>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api/messages';
+
+    async function loadMessages() {
+      const response = await fetch(API_URL);
+      const messages = await response.json();
+      const messagesList = document.getElementById('messagesList');
+
+      if (messages.length === 0) {
+        messagesList.innerHTML = '<p style="text-align: center; color: #999;">No messages yet. Be the first!</p>';
+        return;
+      }
+
+      messagesList.innerHTML = messages.map(msg => `
+                <div class="message">
+                    <div class="message-name">${escapeHtml(msg.name)}</div>
+                    <div>${escapeHtml(msg.message)}</div>
+                    <div class="message-time">${new Date(msg.timestamp).toLocaleString()}</div>
+                </div>
+            `).join('');
+    }
+
+    async function addMessage() {
+      const name = document.getElementById('nameInput').value.trim();
+      const message = document.getElementById('messageInput').value.trim();
+
+      if (!name || !message) {
+        alert('Please enter both name and message');
+        return;
+      }
+
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message })
+      });
+
+      document.getElementById('nameInput').value = '';
+      document.getElementById('messageInput').value = '';
+      loadMessages();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    loadMessages();
+  </script>
+</body>
+
+</html>
